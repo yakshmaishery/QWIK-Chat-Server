@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Server Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background: #ffffff;
+            padding: 20px 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #333333;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .status.running {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.offline {
+            background-color: #f8d7da;
+            color: green;
+            border: 1px solid #f5c6cb;
+        }
+        a:link {
+            background-color: #f8d7da;
+            color: green;
+            border: 1px solid #f5c6cb;
+         }
+
+         a:visited {
+            background-color: #f8d7da;
+            color: green;
+            border: 1px solid #f5c6cb;
+         }
+
+         a:hover {
+            background-color: #f8d7da;
+            color: green;
+            border: 1px solid #f5c6cb;
+         }
+
+         a:active {
+            background-color: #f8d7da;
+            color: green;
+            border: 1px solid #f5c6cb;
+         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Socket.IO Server is working</h1>
+        <h3>Client URL</h3>
+        <!-- <div id="status" class="status offline"><a href="https://flashchat-client.vercel.app/" class="link">https://flashchat-client.vercel.app</a></div> -->
+    </div>
+</body>
+</html>
