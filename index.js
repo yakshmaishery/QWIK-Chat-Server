@@ -51,7 +51,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("Disconnected:", socket.id);
     socket.broadcast.emit("DISCONNECTED_USER",{sid:socket.id})
   });
 });
