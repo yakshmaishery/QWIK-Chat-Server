@@ -15,7 +15,7 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, '/Index.html'));
 });
 
@@ -34,25 +34,45 @@ io.on("connection", (socket) => {
   //   socket.emit("message", "Hello from server");
   // });
   socket.on("SetUser", (data) => {
-    socket.broadcast.emit("SetUserCallBack_BROARDCAST",data)
+    socket.broadcast.emit("SetUserCallBack_BROARDCAST", data)
     socket.emit("SetUserCallBack", data);
   });
 
   socket.on("ConnectUser", (data) => {
-    socket.broadcast.emit("ConnectUser_BROARDCAST",data)
+    socket.broadcast.emit("ConnectUser_BROARDCAST", data)
   });
 
   socket.on("SendMessage", (data) => {
-    socket.broadcast.emit("SendMessage_BROARDCAST",data)
+    socket.broadcast.emit("SendMessage_BROARDCAST", data)
   });
 
   socket.on("ConnectUser_CALLBACK", (data) => {
-    socket.broadcast.emit("ConnectUser_CALLBACK_BROARDCAST",data)
+    socket.broadcast.emit("ConnectUser_CALLBACK_BROARDCAST", data)
   });
 
   socket.on("disconnect", () => {
-    socket.broadcast.emit("DISCONNECTED_USER",{sid:socket.id})
+    socket.broadcast.emit("DISCONNECTED_USER", { sid: socket.id })
   });
+
+  // Start Sharing File
+  socket.on("startFileTransfer", ({ type, name, size, AnotherID }) => {
+    socket.broadcast.emit("startFileTransferAnother", { type, name, size, AnotherID })
+  })
+
+  // Sharing Chunk File
+  socket.on("chunkFileTransfer", ({ type, name, size, data, offset, AnotherID }) => {
+    socket.broadcast.emit("chunkFileTransferAnother", { type, name, size, data, offset, AnotherID })
+  })
+
+  // End Sharing File
+  socket.on("endFileTransfer", ({ type, name, AnotherID }) => {
+    socket.broadcast.emit("endFileTransferAnother", { type, name, AnotherID })
+  })
+
+  // End Sharing File Callback
+  socket.on("endFileTransferAnotherCALLBACK", ({ msg, UserID, AnotherID }) => {
+    socket.broadcast.emit("endFileTransferUserCALLBACK", { msg, UserID, AnotherID })
+  })
 });
 
 server.listen(3000, () => {
