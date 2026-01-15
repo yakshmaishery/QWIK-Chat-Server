@@ -23,6 +23,7 @@ const io = new Server(server, {
   cors: {
     origin: "*", // Qwik dev URL
     methods: ["GET", "POST"],
+    transports: ["websocket", "polling"], // important
   },
 });
 
@@ -75,6 +76,7 @@ io.on("connection", (socket) => {
   })
 });
 
-server.listen(3000, () => {
-  console.log("Socket server running on port 3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Socket server running on port "+PORT);
 });
