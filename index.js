@@ -21,9 +21,12 @@ app.get('/', function (req, res) {
 
 const io = new Server(server, {
   cors: {
-    origin: "*", // Qwik dev URL
+    origin: [
+      "https://qwick-chat.vercel.app",
+      "http://localhost:5173",
+    ], // Qwik dev URL
     methods: ["GET", "POST"],
-    transports: ["websocket", "polling"], // important
+    transports: ["websocket"], // important
   },
 });
 
