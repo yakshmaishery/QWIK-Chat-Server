@@ -26,7 +26,7 @@ const io = new Server(server, {
       "http://localhost:5173",
     ], // Qwik dev URL
     methods: ["GET", "POST"],
-    transports: ["websocket"], // important
+    transports: ["polling", "websocket"]
   },
 });
 
