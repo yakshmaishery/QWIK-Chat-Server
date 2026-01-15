@@ -1,77 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socket.IO Server Status</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            background: #ffffff;
-            padding: 20px 40px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        h1 {
-            color: #333333;
-        }
-        .status {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .status.running {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status.offline {
-            background-color: #f8d7da;
-            color: green;
-            border: 1px solid #f5c6cb;
-        }
-        a:link {
-            background-color: #f8d7da;
-            color: green;
-            border: 1px solid #f5c6cb;
-         }
+  <meta charset="UTF-8">
+  <title>Socket.IO Server Page</title>
 
-         a:visited {
-            background-color: #f8d7da;
-            color: green;
-            border: 1px solid #f5c6cb;
-         }
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-         a:hover {
-            background-color: #f8d7da;
-            color: green;
-            border: 1px solid #f5c6cb;
-         }
+    .card {
+      background: #020617;
+      padding: 30px 50px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+    }
 
-         a:active {
-            background-color: #f8d7da;
-            color: green;
-            border: 1px solid #f5c6cb;
-         }
-    </style>
+    h1 {
+      color: #38bdf8;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 18px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    .connected {
+      color: #22c55e;
+    }
+
+    .disconnected {
+      color: #ef4444;
+    }
+
+    .info {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Socket.IO Server is working</h1>
-        <h3>Client URL</h3>
-        <!-- <div id="status" class="status offline"><a href="https://flashchat-client.vercel.app/" class="link">https://flashchat-client.vercel.app</a></div> -->
-    </div>
+
+  <div class="card">
+    <h1>Socket.IO Server Page for Qwick Connect</h1>
+    <div id="status" class="disconnected">Disconnected</div>
+    <div id="message"></div>
+    <p class="info">This page is served from a Socket.IO server</p>
+  </div>
+
+  <!-- Socket.IO Client (served automatically by the server) -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const messageEl = document.getElementById("message");
+
+    const socket = io();
+
+    socket.on("connect", () => {
+      statusEl.textContent = "Connected to Socket.IO Server";
+      statusEl.className = "connected";
+    });
+
+    socket.on("disconnect", () => {
+      statusEl.textContent = "Disconnected";
+      statusEl.className = "disconnected";
+    });
+
+    socket.on("serverMessage", (msg) => {
+      messageEl.textContent = msg;
+    });
+  </script>
+
 </body>
 </html>
