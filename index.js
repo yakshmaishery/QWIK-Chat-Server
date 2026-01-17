@@ -78,6 +78,10 @@ io.on("connection", (socket) => {
   socket.on("endFileTransferAnotherCALLBACK", ({ msg, UserID, AnotherID }) => {
     socket.broadcast.emit("endFileTransferUserCALLBACK", { msg, UserID, AnotherID })
   })
+  // End Sharing File Callback
+  socket.on("DisconnectPreAnUser", (data) => {
+    socket.broadcast.emit("DisconnectPreAnUser_CALLBACK", data)
+  })
 });
 
 const PORT = process.env.PORT || 3000;
