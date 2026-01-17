@@ -65,7 +65,10 @@
     const statusEl = document.getElementById("status");
     const messageEl = document.getElementById("message");
 
-    const socket = io();
+    const socket = io({
+      transports: ["websocket"],
+      path: "/socket.io"
+    });
 
     socket.on("connect", () => {
       statusEl.textContent = "Connected to Socket.IO Server";

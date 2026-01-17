@@ -20,13 +20,14 @@ app.get('/', function (req, res) {
 });
 
 const io = new Server(server, {
+  path:"/socket.io",
+  transports:["websocket"],
   cors: {
     origin: [
       "https://qwick-chat.vercel.app",
       "http://localhost:5173",
     ], // Qwik dev URL
-    methods: ["GET", "POST"],
-    transports: ["polling", "websocket"]
+    methods: ["GET", "POST"]
   },
 });
 
