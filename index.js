@@ -29,6 +29,10 @@ const io = new Server(server, {
     ], // Qwik dev URL
     methods: ["GET", "POST"]
   },
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  perMessageDeflate:false,
+  maxHttpBufferSize:1e8
 });
 
 io.on("connection", (socket) => {
