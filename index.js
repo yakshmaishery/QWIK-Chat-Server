@@ -69,8 +69,9 @@ io.on("connection", (socket) => {
   })
 
   // Sharing Chunk File
-  socket.on("chunkFileTransfer", ({ type, name, size, data, offset, AnotherID }) => {
+  socket.on("chunkFileTransfer", ({ type, name, size, data, offset, AnotherID },callback) => {
     socket.broadcast.emit("chunkFileTransferAnother", { type, name, size, data, offset, AnotherID })
+    callback(); // ✅ VERY IMPORTANT → sends ACK back to sender
   })
 
   // End Sharing File
