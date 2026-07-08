@@ -87,6 +87,82 @@ io.on("connection", (socket) => {
   socket.on("DisconnectPreAnUser", (data) => {
     socket.broadcast.emit("DisconnectPreAnUser_CALLBACK", data)
   })
+
+  // ══════════════════════════════════════════
+  // ── ROOM / GROUP CHAT (new, additive) ──
+  // Scoped with socket.join() — does not touch
+  // any of the global broadcast events above.
+  // ══════════════════════════════════════════
+
+  // Create a room — creator joins their own new room.
+  // No one else is in it yet, so just ack back to the creator.
+  socket.on("CreateRoom", ({ roomId, name }) => {
+    socket.join(roomId);
+    socket.data.roomId = roomId;
+    socket.data.name = name;
+
+    socket.emit("CreateRoomCallBack", { roomId, name, sid: socket.id });
+  });
+
+  // Join an existing room — notify only the members already in that room.
+  socket.on("JoinRoom", ({ roomId, name }) => {
+    socket.join(roomId);
+    socket.data.roomId = roomId;
+    socket.data.name = name;
+
+    // Tell existing room members someone joined
+    socket.to(roomId).emit("RoomUserJoined", { sid: socket.id, name, roomId });
+
+    // Ack back to the joiner with confirmation
+    socket.emit("JoinRoomCallBack", { roomId, name, sid: socket.id });
+
+    // Send the joiner a list of everyone already in the room
+    const membersInRoom = [];
+    const room = io.sockets.adapter.rooms.get(roomId);
+    if (room) {
+      for (const memberSid of room) {
+        if (memberSid !== socket.id) {
+          const memberSocket = io.sockets.sockets.get(memberSid);
+          if (memberSocket) {
+            membersInRoom.push({ sid: memberSid, name: memberSocket.data.name });
+          }
+        }
+      }
+    }
+    socket.emit("RoomMembersList", { roomId, members: membersInRoom });
+  });
+
+  // Send a chat message — scoped to the room only
+  socket.on("RoomSendMessage", ({ roomId, name, text }) => {
+    if (!roomId) return;
+    socket.to(roomId).emit("RoomMessageBroadcast", {
+      sid: socket.id,
+      roomId,
+      name,
+      text,
+      time: new Date().toISOString()
+    });
+  });
+
+  // Leave a room explicitly (user clicks "Leave Room")
+  socket.on("LeaveRoom", ({ roomId }) => {
+    if (!roomId) return;
+    socket.leave(roomId);
+    socket.to(roomId).emit("RoomUserLeft", { sid: socket.id, roomId });
+    socket.emit("LeaveRoomCallBack", { roomId });
+    if (socket.data.roomId === roomId) {
+      socket.data.roomId = undefined;
+    }
+  });
+
+  // Auto-cleanup: if the socket disconnects while still in a room,
+  // let that room know (separate from your existing global "disconnect" handler above)
+  socket.on("disconnect", () => {
+    const roomId = socket.data.roomId;
+    if (roomId) {
+      socket.to(roomId).emit("RoomUserLeft", { sid: socket.id, roomId });
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3000;
