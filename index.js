@@ -21,7 +21,7 @@ app.get('/', function (req, res) {
 
 const io = new Server(server, {
   path:"/socket.io",
-  transports:["websocket"],
+  // transports:["websocket"],
   cors: {
     origin: [
       "https://qwick-chat.vercel.app",
@@ -48,11 +48,21 @@ io.on("connection", (socket) => {
   });
 
   socket.on("SendMessage", (data) => {
-    socket.broadcast.emit("SendMessage_BROARDCAST", data)
+    if(data.AnotherSocketID){
+      io.to(data.AnotherSocketID).emit("SendMessage_BROARDCAST", data)
+    }
+    else{
+      socket.broadcast.emit("SendMessage_BROARDCAST", data)
+    }
   });
 
   socket.on("ConnectUser_CALLBACK", (data) => {
-    socket.broadcast.emit("ConnectUser_CALLBACK_BROARDCAST", data)
+    if(data.AnotherSocketID){
+      io.to(data.AnotherSocketID).emit("ConnectUser_CALLBACK_BROARDCAST", data)
+    }
+    else{
+      socket.broadcast.emit("ConnectUser_CALLBACK_BROARDCAST", data)
+    }
   });
 
   // socket.on("disconnect", () => {
@@ -91,8 +101,13 @@ io.on("connection", (socket) => {
   })
 
   // End Sharing File Callback
-  socket.on("endFileTransferAnotherCALLBACK", ({ msg, UserID, AnotherID }) => {
-    socket.broadcast.emit("endFileTransferUserCALLBACK", { msg, UserID, AnotherID })
+  socket.on("endFileTransferAnotherCALLBACK", ({ msg, UserID, AnotherID, AnotherSocketID }) => {
+    if(AnotherSocketID){
+      io.to(AnotherSocketID).emit("endFileTransferUserCALLBACK", { msg, UserID, AnotherID })
+    }
+    else{
+      socket.broadcast.emit("endFileTransferUserCALLBACK", { msg, UserID, AnotherID })
+    }
   })
   // End Sharing File Callback
   socket.on("DisconnectPreAnUser", (data) => {
