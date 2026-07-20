@@ -32,16 +32,12 @@ const io = new Server(server, {
   pingTimeout: 60000,
   pingInterval: 25000,
   perMessageDeflate:false,
-  maxHttpBufferSize:1e8
+  maxHttpBufferSize:5e6
 });
 
 io.on("connection", (socket) => {
   // console.log("Client connected:", socket.id);
 
-  // socket.on("message", (data) => {
-  //   console.log("Received:", data);
-  //   socket.emit("message", "Hello from server");
-  // });
   socket.on("SetUser", (data) => {
     socket.broadcast.emit("SetUserCallBack_BROARDCAST", data)
     socket.emit("SetUserCallBack", data);
@@ -59,24 +55,39 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("ConnectUser_CALLBACK_BROARDCAST", data)
   });
 
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("DISCONNECTED_USER", { sid: socket.id })
-  });
+  // socket.on("disconnect", () => {
+  //   socket.broadcast.emit("DISCONNECTED_USER", { sid: socket.id })
+  // });
 
   // Start Sharing File
-  socket.on("startFileTransfer", ({ type, name, size, AnotherID }) => {
-    socket.broadcast.emit("startFileTransferAnother", { type, name, size, AnotherID })
+  socket.on("startFileTransfer", ({ type, name, size, AnotherID, AnotherSocketID }) => {
+    if(AnotherSocketID){
+      io.to(AnotherSocketID).emit("startFileTransferAnother", { type, name, size, AnotherID })
+    }
+    else{
+      socket.broadcast.emit("startFileTransferAnother", { type, name, size, AnotherID })
+    }
   })
 
   // Sharing Chunk File
-  socket.on("chunkFileTransfer", ({ type, name, size, data, offset, AnotherID },callback) => {
-    socket.broadcast.emit("chunkFileTransferAnother", { type, name, size, data, offset, AnotherID })
+  socket.on("chunkFileTransfer", ({ type, name, size, data, offset, AnotherID, AnotherSocketID },callback) => {
+    if(AnotherSocketID){
+      io.to(AnotherSocketID).emit("chunkFileTransferAnother", { type, name, size, data, offset, AnotherID })
+    }
+    else{
+      socket.broadcast.emit("chunkFileTransferAnother", { type, name, size, data, offset, AnotherID })
+    }
     callback(); // ✅ VERY IMPORTANT → sends ACK back to sender
   })
 
   // End Sharing File
-  socket.on("endFileTransfer", ({ type, name, AnotherID }) => {
-    socket.broadcast.emit("endFileTransferAnother", { type, name, AnotherID })
+  socket.on("endFileTransfer", ({ type, name, AnotherID,AnotherSocketID }) => {
+    if(AnotherSocketID){
+      io.to(AnotherSocketID).emit("endFileTransferAnother", { type, name, AnotherID })
+    }
+    else{
+      socket.broadcast.emit("endFileTransferAnother", { type, name, AnotherID })
+    }
   })
 
   // End Sharing File Callback
@@ -158,6 +169,8 @@ io.on("connection", (socket) => {
   // Auto-cleanup: if the socket disconnects while still in a room,
   // let that room know (separate from your existing global "disconnect" handler above)
   socket.on("disconnect", () => {
+    socket.broadcast.emit("DISCONNECTED_USER", { sid: socket.id })
+    
     const roomId = socket.data.roomId;
     if (roomId) {
       socket.to(roomId).emit("RoomUserLeft", { sid: socket.id, roomId });
